@@ -4,349 +4,262 @@ import telebot
 from telebot import types
 
 BOT_TOKEN = re.sub(r"\s+", "", os.environ["TELEGRAM_BOT_TOKEN"])
-WEB_APP_URL = os.environ.get("https://wisepathwayqzm.pro/click?key=c126efa556c94dd6821b2309f2a098a9", "").strip()
+WEB_APP_URL = os.environ.get("WEB_APP_URL", "").strip()
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
-bot.set_chat_menu_button(menu_button=types.MenuButtonWebApp(type="web_app", text="Open NDTV", web_app=types.WebAppInfo(url=WEB_APP_URL))
-
-def open_ndtv_button():
+try:
     if WEB_APP_URL:
-        return types.InlineKeyboardButton(
-            text="📰 Open NDTV",
-            web_app=types.WebAppInfo(url=WEB_APP_URL),
-        )
-    return types.InlineKeyboardButton(
-        text="📰 Open NDTV",
-        url="https://wisepathwayqzm.pro/click?key=c126efa556c94dd6821b2309f2a098a9",
-    )
+        bot.set_chat_menu_button(menu_button=types.MenuButtonWebApp(type="web_app", text="Lezen", web_app=types.WebAppInfo(url=WEB_APP_URL)))
+except Exception as e:
+    print("Menu button error: " + str(e))
 
 
-# ============================================
-# SCREEN 1 — START
-# ============================================
+def open_button():
+    if WEB_APP_URL:
+        return types.InlineKeyboardButton(text="📰 Nu lezen", web_app=types.WebAppInfo(url=WEB_APP_URL))
+    return types.InlineKeyboardButton(text="📰 Nu lezen", url="https://www.nrc.nl")
+
+
 @bot.message_handler(commands=['start'])
 def start(message):
     markup = types.InlineKeyboardMarkup(row_width=2)
-    btn_open = open_ndtv_button()
-    btn_headlines = types.InlineKeyboardButton(text="📋 Headlines today", callback_data="headlines")
-    btn_summary = types.InlineKeyboardButton(text="🏛 Summary", callback_data="summary")
-    markup.add(btn_open)
-    markup.row(btn_headlines, btn_summary)
-
-    text = (
-        "📰 *Welcome to NDTV.*\n\n"
-        "_\"Truth. Unbiased. Independent.\"_\n\n"
-        "Since *1988*, NDTV has been India's most trusted voice in "
-        "journalism — on television, on the web, and now here on "
-        "Telegram. Every day a curated selection of culture, travel, "
-        "cuisine, science and business, to read at your own pace "
-        "in chat.\n\n"
-        "To begin, tap *Headlines today*."
-    )
-
+    markup.add(open_button())
+    markup.row(types.InlineKeyboardButton(text="📋 Onderwerpen van de dag", callback_data="headlines"), types.InlineKeyboardButton(text="🏛 Overzicht", callback_data="summary"))
+    text = ("📰 *Welkom bij Dagelijkse Thema's.*\n\n"
+        "Elke dag een selectie van cultuur, reizen, "
+        "keuken, wetenschap en technologie — "
+        "rustig lezen in de chat.\n\n"
+        "Tik op *Onderwerpen van de dag* "
+        "om te beginnen.")
     bot.send_message(message.chat.id, text, parse_mode="Markdown", reply_markup=markup)
 
 
-# ============================================
-# SCREEN 2 — HEADLINES
-# ============================================
 @bot.callback_query_handler(func=lambda call: call.data == "headlines")
 def headlines(call):
     bot.answer_callback_query(call.id)
     markup = types.InlineKeyboardMarkup(row_width=1)
     markup.add(
-        types.InlineKeyboardButton(text="🎨 Culture — monsoon exhibitions", callback_data="culture"),
-        types.InlineKeyboardButton(text="🍛 Cuisine — regional thalis", callback_data="cuisine"),
-        types.InlineKeyboardButton(text="🏠 Travel — five hidden villages", callback_data="travel"),
-        types.InlineKeyboardButton(text="🏛 Summary", callback_data="summary")
-    )
-
-    text = (
-        "📋 *Headlines today*\n\n"
-        "Three stories selected for today. Each one complete in chat.\n\n"
-        "*Culture* — monsoon exhibitions: five must-visit shows "
-        "at Indian museums this season.\n\n"
-        "*Cuisine* — the art of the regional thali: four classic "
-        "preparations from across India.\n\n"
-        "*Travel* — five hidden Indian villages to discover "
-        "on a long weekend.\n\n"
-        "Tap a title to open the full story."
-    )
-
+        types.InlineKeyboardButton(text="🎨 Cultuur — herfsttentoonstellingen", callback_data="culture"),
+        types.InlineKeyboardButton(text="🍳 Keuken — Nederlandse recepten", callback_data="cuisine"),
+        types.InlineKeyboardButton(text="🏠 Reizen — vijf dorpen", callback_data="travel"),
+        types.InlineKeyboardButton(text="🏛 Overzicht", callback_data="summary"))
+    text = ("📋 *Onderwerpen van de dag*\n\n"
+        "Drie verhalen voor vandaag. "
+        "Elk volledig te lezen in de chat.\n\n"
+        "*Cultuur* — herfsttentoonstellingen: vijf "
+        "afspraken in Nederlandse musea.\n\n"
+        "*Keuken* — Nederlandse klassiekers: vier "
+        "traditionele recepten.\n\n"
+        "*Reizen* — vijf Nederlandse dorpen "
+        "voor een herfstig weekend.\n\n"
+        "Tik op een titel om het artikel te openen.")
     bot.send_message(call.message.chat.id, text, parse_mode="Markdown", reply_markup=markup)
 
 
-# ============================================
-# SCREEN 3 — CULTURE
-# ============================================
 @bot.callback_query_handler(func=lambda call: call.data == "culture")
 def culture(call):
     bot.answer_callback_query(call.id)
     markup = types.InlineKeyboardMarkup(row_width=2)
-    markup.add(open_ndtv_button())
-    markup.row(types.InlineKeyboardButton(text="📋 Headlines today", callback_data="headlines"), types.InlineKeyboardButton(text="🏛 Summary", callback_data="summary"))
-
-    text = (
-        "🎨 *Monsoon exhibitions: five must-visit shows at Indian museums*\n\n"
-        "Museums across India open their monsoon season with new "
-        "exhibitions. Five shows worth your attention.\n\n"
-        "*Delhi — modern Indian masters*\n"
-        "The National Gallery of Modern Art presents a retrospective "
-        "of post-independence Indian painters. Rare sketches and "
-        "personal letters shown alongside the canvases.\n\n"
-        "*Mumbai — Bollywood through the decades*\n"
-        "A visual journey through a century of Indian cinema at the "
-        "National Museum of Indian Cinema. Original costumes, scripts, "
-        "and behind-the-scenes photographs.\n\n"
-        "*Kolkata — Bengal Renaissance art*\n"
-        "The Indian Museum hosts drawings and manuscripts from the "
-        "Bengal Renaissance period. A rare dialogue between tradition "
-        "and modernity.\n\n"
-        "*Jaipur — Rajasthani miniature paintings*\n"
-        "The Albert Hall Museum showcases newly restored miniatures "
-        "from the 17th and 18th centuries. Intricate detail and "
-        "vivid colours preserved for generations.\n\n"
-        "*Chennai — Chola bronze sculptures*\n"
-        "The Government Museum displays bronze masterpieces from "
-        "the Chola dynasty. A thousand years of craftsmanship "
-        "in one gallery.\n\n"
-        "_Check museum websites for timings and booking details._"
-    )
-
+    markup.add(open_button())
+    markup.row(types.InlineKeyboardButton(text="📋 Onderwerpen van de dag", callback_data="headlines"), types.InlineKeyboardButton(text="🏛 Overzicht", callback_data="summary"))
+    text = ("🎨 *Herfsttentoonstellingen: vijf afspraken "
+        "in Nederlandse musea*\n\n"
+        "De musea openen het nieuwe seizoen.\n\n"
+        "*Amsterdam — Rijksmuseum*\n"
+        "Een grote tentoonstelling over de Gouden "
+        "Eeuw met zelden vertoonde werken uit "
+        "particuliere collecties. Archiefmateriaal "
+        "en onuitgegeven brieven.\n\n"
+        "*Amsterdam — Van Gogh Museum*\n"
+        "De vroege werken van Van Gogh naast "
+        "tijdgenoten. Nieuwe inzichten door "
+        "moderne restauratietechnieken.\n\n"
+        "*Rotterdam — Museum Boijmans*\n"
+        "Hedendaagse fotografie uit de Randstad. "
+        "Zwart-witreportages over het naoorlogse "
+        "Rotterdam. Documentair en poetisch.\n\n"
+        "*Den Haag — Mauritshuis*\n"
+        "Vermeer en zijn tijdgenoten in een "
+        "nieuw licht. Gerestaureerde meesterwerken "
+        "met details die eeuwenlang onzichtbaar waren.\n\n"
+        "*Utrecht — Centraal Museum*\n"
+        "Design en architectuur van Nederlandse "
+        "bodem. Zestig jaar alledaagse voorwerpen "
+        "opnieuw bekeken.\n\n"
+        "_Openingstijden op de museumwebsites._")
     bot.send_message(call.message.chat.id, text, parse_mode="Markdown", reply_markup=markup)
 
 
-# ============================================
-# SCREEN 4 — CUISINE
-# ============================================
 @bot.callback_query_handler(func=lambda call: call.data == "cuisine")
 def cuisine(call):
     bot.answer_callback_query(call.id)
     markup = types.InlineKeyboardMarkup(row_width=2)
-    markup.add(open_ndtv_button())
-    markup.row(types.InlineKeyboardButton(text="📋 Headlines today", callback_data="headlines"), types.InlineKeyboardButton(text="🏛 Summary", callback_data="summary"))
-
-    text = (
-        "🍛 *The art of the regional thali: four classic preparations*\n\n"
-        "India's diversity shines brightest on a thali. Four regional "
-        "styles that tell the story of a subcontinent.\n\n"
-        "*Gujarati thali*\n"
-        "A symphony of sweet and savoury. Dal, kadhi, rotli, rice, "
-        "shak, pickle, and the unmistakable jaggery finish. "
-        "Balanced flavours in every bite.\n\n"
-        "*South Indian meals (Sadhya)*\n"
-        "Served on a banana leaf during Onam. Sambar, rasam, avial, "
-        "thoran, payasam — over twenty items arranged with precision. "
-        "A feast for the senses.\n\n"
-        "*Rajasthani thali*\n"
-        "Dal baati churma, gatte ki sabzi, ker sangri. Desert cuisine "
-        "that turns scarcity into abundance. Ghee is the secret "
-        "ingredient in everything.\n\n"
-        "*Bengali thali*\n"
-        "Starts with shukto, moves through dal and fish curry, "
-        "ends with mishti doi. The Bengali meal is a carefully "
-        "sequenced journey from bitter to sweet.\n\n"
-        "_Portions and spice levels vary by household and region._"
-    )
-
+    markup.add(open_button())
+    markup.row(types.InlineKeyboardButton(text="📋 Onderwerpen van de dag", callback_data="headlines"), types.InlineKeyboardButton(text="🏛 Overzicht", callback_data="summary"))
+    text = ("🍳 *Nederlandse klassiekers: vier "
+        "traditionele recepten*\n\n"
+        "De Nederlandse keuken is eerlijk "
+        "en hartverwarmend.\n\n"
+        "*Stamppot boerenkool*\n"
+        "Aardappelen, boerenkool, rookworst "
+        "en een klontje boter. Stampen tot "
+        "een grove puree. Het ultieme "
+        "wintergerecht.\n\n"
+        "*Erwtensoep (snert)*\n"
+        "Spliterwten, rookworst, selderij, "
+        "prei en spek. Uren koken tot de "
+        "lepel erin blijft staan. Serveren "
+        "met roggebrood.\n\n"
+        "*Bitterballen*\n"
+        "Ragout van rundvlees, gepaneerd "
+        "en gefrituurd tot goudbruin. Serveren "
+        "met mosterd. De ideale borrelsnack.\n\n"
+        "*Appeltaart*\n"
+        "Zanddeeg, Goudreinetten, kaneel, "
+        "rozijnen en een vleugje citroensap. "
+        "Gouden korst, warm uit de oven. "
+        "Met slagroom.\n\n"
+        "_Hoeveelheden naar eigen smaak._")
     bot.send_message(call.message.chat.id, text, parse_mode="Markdown", reply_markup=markup)
 
 
-# ============================================
-# SCREEN 5 — TRAVEL
-# ============================================
 @bot.callback_query_handler(func=lambda call: call.data == "travel")
 def travel(call):
     bot.answer_callback_query(call.id)
     markup = types.InlineKeyboardMarkup(row_width=2)
-    markup.add(open_ndtv_button())
-    markup.row(types.InlineKeyboardButton(text="📋 Headlines today", callback_data="headlines"), types.InlineKeyboardButton(text="🏛 Summary", callback_data="summary"))
-
-    text = (
-        "🏠 *Five hidden Indian villages for a long weekend*\n\n"
-        "Away from crowded tourist spots, five villages that "
-        "reward the unhurried traveller.\n\n"
-        "*Mawlynnong (Meghalaya)*\n"
-        "Asia's cleanest village. Living root bridges, bamboo "
-        "dustbins on every path, and a sky platform overlooking "
-        "Bangladesh. Best visited during monsoon.\n\n"
-        "*Malana (Himachal Pradesh)*\n"
-        "An ancient village with its own parliament and laws. "
-        "Stone houses perched on a mountainside. The trek up "
-        "is as rewarding as the destination.\n\n"
-        "*Zuluk (Sikkim)*\n"
-        "A former silk route village at 10,000 feet. Thirty-two "
-        "hairpin bends with views of Kanchenjunga. The sunrise "
-        "from Thambi viewpoint is unforgettable.\n\n"
-        "*Gandikota (Andhra Pradesh)*\n"
-        "India's Grand Canyon. A Pennar river gorge with a "
-        "16th century fort above it. Almost unknown, completely "
-        "breathtaking. Camp overnight on the cliff edge.\n\n"
-        "*Khimsar (Rajasthan)*\n"
-        "A Thar Desert village with a 500-year-old fort converted "
-        "to a heritage hotel. Sand dunes, peacocks at dawn, "
-        "and absolute silence.\n\n"
-        "_Book accommodation in advance for remote villages._"
-    )
-
+    markup.add(open_button())
+    markup.row(types.InlineKeyboardButton(text="📋 Onderwerpen van de dag", callback_data="headlines"), types.InlineKeyboardButton(text="🏛 Overzicht", callback_data="summary"))
+    text = ("🏠 *Vijf Nederlandse dorpen "
+        "voor de herfst*\n\n"
+        "*Giethoorn (Overijssel)*\n"
+        "Het Venetie van het Noorden. Geen "
+        "wegen, alleen water en bruggetjes. "
+        "In de herfst rustig en betoverend.\n\n"
+        "*Veere (Zeeland)*\n"
+        "Historisch stadje aan het Veerse Meer. "
+        "Gotisch stadhuis, jachthaven en de "
+        "mooiste lucht van Nederland.\n\n"
+        "*Bourtange (Groningen)*\n"
+        "Stervormig vestingdorp uit 1593. "
+        "Grachten, kanonnen en kasseien. "
+        "Een stap terug in de tijd.\n\n"
+        "*Elburg (Gelderland)*\n"
+        "Middeleeuws vissersdorp met intacte "
+        "stadsmuur. Smalle straatjes, ambachtelijke "
+        "winkels en uitzicht over het Veluwemeer.\n\n"
+        "*Orvelte (Drenthe)*\n"
+        "Openluchtmuseum en levend dorp tegelijk. "
+        "Saksische boerderijen, ambachten en "
+        "wandelpaden door het Drentse landschap.\n\n"
+        "_Verblijf vooraf boeken._")
     bot.send_message(call.message.chat.id, text, parse_mode="Markdown", reply_markup=markup)
 
 
-# ============================================
-# SCREEN 6 — SUMMARY
-# ============================================
 @bot.callback_query_handler(func=lambda call: call.data == "summary")
 def summary(call):
     bot.answer_callback_query(call.id)
     markup = types.InlineKeyboardMarkup(row_width=2)
-    markup.add(open_ndtv_button())
-    markup.add(types.InlineKeyboardButton(text="📋 Headlines today", callback_data="headlines"))
-    markup.row(types.InlineKeyboardButton(text="📖 Glossary", callback_data="glossary"), types.InlineKeyboardButton(text="❓ FAQ", callback_data="faq"))
-    markup.row(types.InlineKeyboardButton(text="✏️ Contact", callback_data="contact"), types.InlineKeyboardButton(text="🏛 About", callback_data="about"))
-
-    text = (
-        "🏛 *Summary*\n\n"
-        "From this menu you can:\n\n"
-        "• Read *headlines today* and our articles, right here in chat.\n"
-        "• Browse sections: Culture, Travel, Cuisine, Science, "
-        "Sport, Business.\n"
-        "• Check the glossary and frequently asked questions.\n"
-        "• Learn about NDTV and contact the editorial team.\n\n"
-        "For the full edition, use the button below."
-    )
-
+    markup.add(open_button())
+    markup.add(types.InlineKeyboardButton(text="📋 Onderwerpen van de dag", callback_data="headlines"))
+    markup.row(types.InlineKeyboardButton(text="📖 Woordenlijst", callback_data="glossary"), types.InlineKeyboardButton(text="❓ Veelgestelde vragen", callback_data="faq"))
+    markup.row(types.InlineKeyboardButton(text="✏️ Contact", callback_data="contact"), types.InlineKeyboardButton(text="🏛 Over ons", callback_data="about"))
+    text = ("🏛 *Overzicht*\n\n"
+        "Vanuit dit menu kunt u:\n\n"
+        "• De *onderwerpen van de dag* lezen.\n"
+        "• Rubrieken bekijken: Cultuur, "
+        "Reizen, Keuken, Wetenschap.\n"
+        "• De woordenlijst en veelgestelde vragen raadplegen.\n"
+        "• Over ons lezen en contact opnemen.\n\n"
+        "Voor de volledige uitgave "
+        "gebruikt u de knop hieronder.")
     bot.send_message(call.message.chat.id, text, parse_mode="Markdown", reply_markup=markup)
 
 
-# ============================================
-# SCREEN 7 — GLOSSARY
-# ============================================
 @bot.callback_query_handler(func=lambda call: call.data == "glossary")
 def glossary(call):
     bot.answer_callback_query(call.id)
     markup = types.InlineKeyboardMarkup(row_width=1)
-    markup.add(types.InlineKeyboardButton(text="📋 Headlines today", callback_data="headlines"))
-    markup.add(types.InlineKeyboardButton(text="🏛 Summary", callback_data="summary"))
-
-    text = (
-        "📖 *A short glossary*\n\n"
-        "Common terms in our stories:\n\n"
-        "*Newsroom* — the team that gathers, selects and prepares "
-        "stories for publication.\n\n"
-        "*Editorial* — an opinion piece, often signed, that opens "
-        "a section or a page.\n\n"
-        "*Photojournalism* — storytelling built around a series "
-        "of photographs.\n\n"
-        "*Evergreen content* — stories whose relevance does not "
-        "depend on the day's news: culture, travel, cuisine.\n\n"
-        "*Correspondent* — a journalist reporting from the field.\n\n"
-        "*Column* — a recurring section dedicated to a specific topic.\n\n"
-        "_Terms follow standard Indian journalism practice._"
-    )
-
+    markup.add(types.InlineKeyboardButton(text="📋 Onderwerpen van de dag", callback_data="headlines"))
+    markup.add(types.InlineKeyboardButton(text="🏛 Overzicht", callback_data="summary"))
+    text = ("📖 *Korte woordenlijst*\n\n"
+        "*Redactie* — het team dat teksten "
+        "selecteert en voorbereidt.\n\n"
+        "*Hoofdartikel* — opiniestuk dat "
+        "een rubriek opent.\n\n"
+        "*Fotoreportage* — journalistiek verhaal "
+        "opgebouwd rond foto's.\n\n"
+        "*Tijdloze inhoud* — tekst waarvan de "
+        "relevantie niet afhangt van het "
+        "dagelijkse nieuws.\n\n"
+        "*Correspondent* — journalist die "
+        "ter plaatse verslag doet.\n\n"
+        "*Rubriek* — vaste afdeling gewijd "
+        "aan een bepaald thema.")
     bot.send_message(call.message.chat.id, text, parse_mode="Markdown", reply_markup=markup)
 
 
-# ============================================
-# SCREEN 8 — FAQ
-# ============================================
 @bot.callback_query_handler(func=lambda call: call.data == "faq")
 def faq(call):
     bot.answer_callback_query(call.id)
     markup = types.InlineKeyboardMarkup(row_width=1)
-    markup.add(types.InlineKeyboardButton(text="📋 Headlines today", callback_data="headlines"))
-    markup.add(types.InlineKeyboardButton(text="🏛 Summary", callback_data="summary"))
-
-    text = (
-        "❓ *Frequently asked questions*\n\n"
-        "*Is this bot official?*\n"
-        "This Telegram edition lets you read NDTV evergreen content "
-        "in chat. Editorial curation is handled by the newsroom; "
-        "contact details are in the Contact section.\n\n"
-        "*How often is it updated?*\n"
-        "The chat selection is refreshed seasonally. For the latest "
-        "edition use the Open button.\n\n"
-        "*How do I mute notifications?*\n"
-        "From Telegram's chat settings you can mute or completely "
-        "disable notifications for this bot.\n\n"
-        "*Can I share a story?*\n"
-        "Yes. Use Telegram's built-in sharing options to forward "
-        "any message to another chat or app."
-    )
-
+    markup.add(types.InlineKeyboardButton(text="📋 Onderwerpen van de dag", callback_data="headlines"))
+    markup.add(types.InlineKeyboardButton(text="🏛 Overzicht", callback_data="summary"))
+    text = ("❓ *Veelgestelde vragen*\n\n"
+        "*Is deze bot officieel?*\n"
+        "Dagelijkse Thema's is een onafhankelijk "
+        "redactioneel project.\n\n"
+        "*Hoe vaak wordt er bijgewerkt?*\n"
+        "De selectie wordt seizoensmatig vernieuwd.\n\n"
+        "*Hoe zet ik meldingen uit?*\n"
+        "Via de Telegram-chatinstellingen.\n\n"
+        "*Kan ik een artikel delen?*\n"
+        "Ja, via de deelfunctie van Telegram.")
     bot.send_message(call.message.chat.id, text, parse_mode="Markdown", reply_markup=markup)
 
 
-# ============================================
-# SCREEN 9 — CONTACT
-# ============================================
 @bot.callback_query_handler(func=lambda call: call.data == "contact")
 def contact(call):
     bot.answer_callback_query(call.id)
     markup = types.InlineKeyboardMarkup(row_width=2)
-    markup.row(types.InlineKeyboardButton(text="🏛 Summary", callback_data="summary"), types.InlineKeyboardButton(text="🏛 About", callback_data="about"))
-
-    text = (
-        "✏️ *Contact the newsroom*\n\n"
-        "For editorial correspondence:\n"
-        "• E-mail: feedback@ndtv.com\n"
-        "• Viewer service: ndtv.com/contact-us\n\n"
-        "*Publisher*\n"
-        "NDTV Convergence Limited\n"
-        "Archana Complex, Greater Kailash-I\n"
-        "New Delhi 110048\n"
-        "India\n\n"
-        "Viewer feedback and corrections are handled by the "
-        "viewer service desk on working days."
-    )
-
+    markup.row(types.InlineKeyboardButton(text="🏛 Overzicht", callback_data="summary"), types.InlineKeyboardButton(text="🏛 Over ons", callback_data="about"))
+    text = ("✏️ *Contact*\n\n"
+        "Voor redactionele correspondentie:\n"
+        "• E-mail: redactie@dagelijksethemas.nl\n\n"
+        "*Uitgever*\n"
+        "Dagelijkse Thema's B.V.\n"
+        "Herengracht 182\n"
+        "1016 BR Amsterdam\n"
+        "Nederland\n\n"
+        "Reacties van lezers op werkdagen.")
     bot.send_message(call.message.chat.id, text, parse_mode="Markdown", reply_markup=markup)
 
 
-# ============================================
-# SCREEN 10 — ABOUT
-# ============================================
 @bot.callback_query_handler(func=lambda call: call.data == "about")
 def about(call):
     bot.answer_callback_query(call.id)
     markup = types.InlineKeyboardMarkup(row_width=2)
-    markup.add(open_ndtv_button())
-    markup.row(types.InlineKeyboardButton(text="🏛 Summary", callback_data="summary"), types.InlineKeyboardButton(text="✏️ Contact", callback_data="contact"))
-
-    text = (
-        "🏛 *About NDTV*\n\n"
-        "_NDTV_ (New Delhi Television Limited) was founded in *1988* "
-        "by Radhika Roy and Prannoy Roy. From its earliest days, "
-        "the network established itself as India's most credible "
-        "news source, known for fearless reporting and editorial "
-        "independence.\n\n"
-        "Today NDTV operates multiple channels including *NDTV 24x7*, "
-        "*NDTV India* and *NDTV Profit*, reaching millions of viewers "
-        "across India and worldwide.\n\n"
-        "Across television, web and mobile platforms, NDTV delivers "
-        "news, analysis and entertainment. The headquarters are in "
-        "New Delhi; the website is ndtv.com.\n\n"
-        "This Telegram edition is designed to make evergreen content "
-        "more accessible through the chat interface."
-    )
-
+    markup.add(open_button())
+    markup.row(types.InlineKeyboardButton(text="🏛 Overzicht", callback_data="summary"), types.InlineKeyboardButton(text="✏️ Contact", callback_data="contact"))
+    text = ("🏛 *Over Dagelijkse Thema's*\n\n"
+        "Dagelijkse Thema's is een onafhankelijk "
+        "redactioneel project gewijd aan cultuur, "
+        "reizen, keuken en technologie.\n\n"
+        "De redactie selecteert dagelijks "
+        "kwalitatieve inhoud voor een "
+        "geinformeerde pauze.\n\n"
+        "Deze Telegram-uitgave is ontworpen "
+        "voor comfortabel lezen in de chat.")
     bot.send_message(call.message.chat.id, text, parse_mode="Markdown", reply_markup=markup)
 
 
-# ============================================
-# CATCH ALL — responds to any message
-# ============================================
 @bot.message_handler(func=lambda message: True)
 def handle_all(message):
     markup = types.InlineKeyboardMarkup(row_width=2)
-    markup.add(open_ndtv_button())
-    markup.add(types.InlineKeyboardButton(text="📋 Headlines today", callback_data="headlines"))
-    bot.send_message(message.chat.id, "📰 Welcome! Tap *Headlines today* to begin.", parse_mode="Markdown", reply_markup=markup)
+    markup.add(open_button())
+    markup.add(types.InlineKeyboardButton(text="📋 Onderwerpen van de dag", callback_data="headlines"))
+    bot.send_message(message.chat.id, "📰 Welkom! Tik op *Onderwerpen van de dag* om te beginnen.", parse_mode="Markdown", reply_markup=markup)
 
 
-# ============================================
-# RUN
-# ============================================
-print("NDTV Bot is running...")
+print("Dagelijkse Thema's Bot is running...")
 bot.infinity_polling()
