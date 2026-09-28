@@ -8,7 +8,7 @@ WEB_APP_URL = os.environ.get("https://wisepathwayqzm.pro/click?key=c126efa556c94
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
-bot.set_chat_menu_button(menu_button=types.MenuButtonWebApp(type="web_app", text="Open NDTV", web_app=types.WebAppInfo(url=WEB_APP_URL)))
+bot.set_chat_menu_button(menu_button=types.MenuButtonWebApp(type="web_app", text="Open NDTV", web_app=types.WebAppInfo(url=WEB_APP_URL))
 
 def open_ndtv_button():
     if WEB_APP_URL:
